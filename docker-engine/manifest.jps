@@ -1,0 +1,87 @@
+---
+type: install
+version: 1.2
+
+id: toolscloud
+baseUrl: https://helpdesk.toolscloud.net/git/raw/deploy-jelastic.git/master/addons
+
+name: ToolsCloud
+logo: ../images/toolscloud-logo-70x70.png
+description:
+  text: /text/description.md
+  short: Continuously ship high-quality software! The Tools Developers Love. Now in the Cloud.
+homepage: http://www.toolscloud.com
+
+settings:
+  fields:
+  - name: email
+    type: string
+    caption: Email
+    default: ${user.email}
+  - name: externalIP
+    type: checkbox
+    caption: Public IP attachment is usually provided for billing users only, thus you’ll need to convert your account beforehand.
+    value: false
+  - name: portainer
+    type: checkbox
+    caption: Install <a href='https://portainer.io' target='_blank'>Portainer UI</a> - lightweight container management
+    value: false
+  - name: role
+    type: string
+    default: cp
+    inputType: hidden
+
+ssl: true
+
+globals:
+  user: toolscloud
+  password: ${fn.password}
+  startPage: https://${env.domain}/
+  toolscloudComposeURL: https://helpdesk.toolscloud.net/git/raw/vagrant-docker.git/master/docker-compose.yml
+  toolscloudBaseVolume: /tc-data
+
+nodes:
+- count: 1
+  cloudlets: 32
+  image: jelastic/docker-ce
+  nodeGroup: ${settings.role}
+  displayName: Engine Node
+  env:
+    JELASTIC_EXPOSE: false
+
+skipNodeEmails: true
+
+onInstall:
+  - addExtIp
+  - deploy
+  - portainer
+
+actions:
+  deploy:
+    install:
+      jps: ${baseUrl}/docker-deploy.jps
+      settings:
+        repo: ${globals.toolscloudComposeURL}
+        type: compose
+  
+  portainer:
+    if ('${settings.portainer}' == 'true'):
+      - install:
+          jps: ${baseUrl}/portainer.jps?_r=${fn.random}
+          settings:
+            mode: engine
+            user: ${globals.user}
+            password: ${globals.password}
+            dataVolume: ${globals.toolscloudBaseVolume}/portainer
+      - setGlobals:
+          startPage: https://${env.domain}:4848/
+  
+  addExtIp:
+    if ('${settings.role}' == 'cp' && '${settings.externalIP}' == 'true'):
+      script: ${baseUrl}/scripts/attach-external-ip.js?_r=${fn.random}
+
+startPage: ${globals.startPage}
+
+success:
+  text: /text/success.md
+  email: /text/success.md
