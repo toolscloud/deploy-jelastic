@@ -3,7 +3,7 @@ type: install
 version: 1.2
 
 id: toolscloud
-baseUrl: https://helpdesk.toolscloud.net/git/raw/deploy-jelastic.git/master/addons
+baseUrl: https://raw.githubusercontent.com/toolscloud/deploy-jelastic/master/addons
 
 name: ToolsCloud
 logo: ../images/toolscloud-logo-70x70.png
@@ -37,7 +37,7 @@ globals:
   user: toolscloud
   password: ${fn.password}
   startPage: https://${env.domain}/
-  toolscloudComposeURL: https://helpdesk.toolscloud.net/git/raw/vagrant-docker.git/master/docker-compose.yml
+  deployToolscloudURL: https://github.com/toolscloud/deploy-toolscloud.git
   toolscloudBaseVolume: /tc-data
 
 nodes:
@@ -61,7 +61,7 @@ actions:
     install:
       jps: ${baseUrl}/docker-deploy.jps
       settings:
-        repo: ${globals.toolscloudComposeURL}
+        repo: ${globals.deployToolscloudURL}
         type: compose
   
   portainer:
