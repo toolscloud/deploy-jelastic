@@ -6,4 +6,4 @@ One button click is coming soon...
 
 ## Native Docker Containers
 
-* [Docker Engine](./docker-engine) - a standalone Docker node with preconfigured with ToolsCloud stack, automatic vertical scaling, and full compatibility to native Docker ecosystem.
+* [Docker Engine](./docker-engine) - a standalone Docker node with pre-configured automatic vertical scaling, full compatibility to native Docker ecosystem, and with ToolsCloud stack ready to go.
