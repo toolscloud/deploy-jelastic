@@ -2,9 +2,9 @@
 
 ### Login Information
 
-**Admin UI**: [${env.url}](${env.url})
-**User**: ${globals.user}
-**Password**: ${globals.password}
+* **Admin UI**: [${env.url}](${env.url})
+* **User**: ${globals.user}
+* **Password**: ${globals.password}
 
 ### SSH Connection
 

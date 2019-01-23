@@ -20,7 +20,7 @@ settings:
     default: ${user.email}
   - name: externalIP
     type: checkbox
-    caption: Public IP attachment is usually provided for billing users only, thus you’ll need to convert your account beforehand.
+    caption: Public IP attachment (is usually provided for billing users only, thus you’ll need to convert your account beforehand)
     value: false
   - name: portainer
     type: checkbox
