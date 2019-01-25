@@ -63,6 +63,7 @@ actions:
       settings:
         repo: ${globals.deployToolscloudURL}
         type: compose
+        password: ${globals.password}
   
   portainer:
     if ('${settings.portainer}' == 'true'):

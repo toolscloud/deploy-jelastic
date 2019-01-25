@@ -2,13 +2,17 @@
 jpsType: update
 id: docker-deploy
 name: Docker Deploy
+
 globals:
   log: /var/log/run.log
+  project: deploy-toolscloud
+
 onInstall:
   - if ("${settings.preHook}" && "${settings.preHook}" != "$"+"{settings.preHook}"): execPreHook
   - if ('${settings.type}' == 'stack'): stackDeploy
   - if ('${settings.type}' == 'stackName'): stackNameDeploy
   - if ('${settings.type}' == 'compose'): composeUp
+
 actions:
   execPreHook: 
     cmd[${nodes.cp.master.id}]: ${settings.preHook}
@@ -22,18 +26,28 @@ actions:
       IFS='/' read -r -a array <<< $project
       cd ${array[4]}
       docker stack deploy -c $(basename $url) ${settings.stackName} >> ${globals.log}
+  
   stackDeploy:
     cmd[${nodes.cp.master.id}]: |-
       docker network create --driver overlay proxy
       curl -o docker-stack.yml ${settings.yml} >> ${globals.log}
       docker stack deploy -c docker-stack.yml proxy >> ${globals.log}
+  
   serviceDeploy:
     cmd[${nodes.cp.master.id}]: |-
       docker service create --name demo --replicas $NBR_REPLICA --publish ${EXPOSED_PORT}:${SERVICE_PORT} ${SERVICE_IMAGE} >> ${globals.log}
+
   composeUp:
-    cmd[cp]: |-
-      git clone ${settings.repo} application >> ${globals.log}
-      cd application && docker-compose up -d >> ${globals.log}
+    - cmd[cp]: |-
+        git clone ${settings.repo} ${globals.project} >> ${globals.log}
+        cd ${globals.project} && docker-compose up -d >> ${globals.log}
+    
+    # set ToolsCloud password
+    - cmd[cp]: docker-compose exec ldap ldappasswd -H ldap://localhost -x -D 'cn=toolscloud,ou=users,dc=toolscloud,dc=com' -w toolscloud -a toolscloud -s ${settings.password} >> ${globals.log}
+
+    # force Sonar LDAP plugin
+    - cmd[cp]: docker-compose exec sonar sh -c "mkdir -p /opt/sonar/extensions/plugins && cp /opt/sonar-ldap-plugin-*.jar /opt/sonar/extensions/plugins/" >> ${globals.log}
+
 responses:
   4109:
     type: error
