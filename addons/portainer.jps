@@ -15,7 +15,7 @@ settings:
 globals:
   user: admin
   password: ${settings.password}
-  dataVolume: ${settings.dataVolume}
+  dataVolume: /opt/portainer
   
 onInstall:
   - forEach(nodes.cp):

@@ -38,7 +38,6 @@ globals:
   password: ${fn.password}
   startPage: https://${env.domain}/
   deployToolscloudURL: https://github.com/toolscloud/deploy-toolscloud.git
-  toolscloudBaseVolume: /tc-data
 
 nodes:
 - count: 1
@@ -73,7 +72,6 @@ actions:
             mode: engine
             user: ${globals.user}
             password: ${globals.password}
-            dataVolume: ${globals.toolscloudBaseVolume}/portainer
       - setGlobals:
           startPage: https://${env.domain}:4848/
   
