@@ -1,1 +1,1 @@
-Continuously ship high-quality software! [ToolsCloud](http://www.toolscloud.com) offers a complete, integrated set of applications to handle all your Continuous Deployment and DevOps needs. Git, Jenkins, Nexus, Sonar and more. Ready to roll.
+Continuously ship high-quality software! **ToolsCloud** offers a complete, integrated set of applications to handle all your Continuous Deployment and DevOps needs. Git, Jenkins, Nexus, Sonar and more. Ready to roll.
