@@ -41,7 +41,7 @@ globals:
 
 nodes:
 - count: 1
-  cloudlets: 50
+  cloudlets: 128
   image: jelastic/docker-ce
   nodeGroup: ${settings.role}
   displayName: Engine Node
