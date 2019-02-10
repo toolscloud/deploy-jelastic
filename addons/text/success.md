@@ -8,7 +8,7 @@
 
 ### Portainer (if it's available)
 
-* **Admin UI**: [https://${env.domain}:4848](https://${env.domain}:4848)
+* **Admin UI**: https://${env.domain}:4848
 * **User**: admin
 * **Password**: ${globals.password}
 
