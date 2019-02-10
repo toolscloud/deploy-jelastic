@@ -38,15 +38,19 @@ actions:
       docker service create --name demo --replicas $NBR_REPLICA --publish ${EXPOSED_PORT}:${SERVICE_PORT} ${SERVICE_IMAGE} >> ${globals.log}
 
   composeUp:
-    - cmd[cp]: |-
-        git clone ${settings.repo} ${globals.project} >> ${globals.log}
-        cd ${globals.project} && docker-compose up -d >> ${globals.log}
-    
-    # set ToolsCloud password
-    - cmd[cp]: docker-compose exec ldap ldappasswd -H ldap://localhost -x -D 'cn=toolscloud,ou=users,dc=toolscloud,dc=com' -w toolscloud -a toolscloud -s ${settings.password} >> ${globals.log}
+    cmd[cp]:
+      - git clone ${settings.repo} ${globals.project} >> ${globals.log}
+      - cd ${globals.project}
 
-    # force Sonar LDAP plugin
-    - cmd[cp]: docker-compose exec sonar sh -c "mkdir -p /opt/sonar/extensions/plugins && cp /opt/sonar-ldap-plugin-*.jar /opt/sonar/extensions/plugins/" >> ${globals.log}
+      - export COMPOSE_HTTP_TIMEOUT=200
+      - export COMPOSE_INTERACTIVE_NO_CLI=true
+      - docker-compose up -d >> ${globals.log}
+
+      # set ToolsCloud password
+      - docker-compose exec -T ldap ldappasswd -H ldap://localhost -x -D 'cn=toolscloud,ou=users,dc=toolscloud,dc=com' -w toolscloud -a toolscloud -s ${settings.password} >> ${globals.log}
+
+      # force Sonar LDAP plugin
+      - docker-compose exec -T sonar sh -c "mkdir -p /opt/sonar/extensions/plugins && cp /opt/sonar-ldap-plugin-*.jar /opt/sonar/extensions/plugins/" >> ${globals.log}
 
 responses:
   4109:
