@@ -27,7 +27,7 @@ onInstall:
         home=$(readlink -f ~)
         volumes="-v /var/run/docker.sock:/var/run/docker.sock -v ${globals.dataVolume}:/data -v $home/.ssh/certs:/certs"
         portainer="portainer/portainer --admin-password $password --ssl --sslcert /certs/portainer.crt --sslkey /certs/portainer.key"
-        docker run -d -p 4848:9000 --restart always $volumes $portainer
+        docker run -d --name portainer -p 4848:9000 --restart always $volumes $portainer
   - if ('${settings.mode}' == 'swarm'):
     - cmd[cp]: mkdir -p ${globals.dataVolume}
     - cmd[${nodes.cp.master.id}]: |-
