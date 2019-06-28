@@ -1,0 +1,202 @@
+---
+type: install
+version: 1.2
+
+id: toolscloud
+baseUrl: https://raw.githubusercontent.com/toolscloud/deploy-jelastic/master/addons
+
+name: ToolsCloud
+logo: ../images/toolscloud-logo-70x70.png
+description:
+  text: /text/description.md
+  short: /text/description-short.md
+homepage: http://www.toolscloud.com
+
+settings:
+  fields:
+  - type: string
+    name: email
+    caption: Email
+    default: "${user.email}"
+
+ssl: true
+
+globals:
+  user: toolscloud
+  password: ${fn.password}
+  log: /var/log/run.log
+
+nodes:
+- displayName: postgresql
+  image: toolscloud/postgresql:v8.0
+  cloudlets: 16
+  nodeGroup: postgresql
+  volumes:
+  - /var/lib/postgresql
+  - /run/postgresql
+
+- displayName: ldap
+  image: toolscloud/ldap:v8.1
+  nodeGroup: ldap
+  cloudlets: 8
+  volumes:
+  - /var/lib/ldap
+  - /usr/local/var/openldap-data
+
+- displayName: gitblit
+  image: toolscloud/gitblit:v8.1
+  nodeGroup: gitblit
+  cloudlets: 16
+  volumes:
+  - /opt/gitblit-data
+  links:
+  - ldap:LDAP
+
+- displayName: redmine
+  image: toolscloud/redmine:v8.1
+  cloudlets: 20
+  nodeGroup: redmine
+  links:
+  - ldap:LDAP
+  - postgresql:POSTGRESQL
+  - gitblit:GIT
+  volumes:
+  - /home/redmine/data
+  - /var/log/redmine
+  - /home/redmine/redmine/config
+  - /home/redmine/redmine/files
+
+- displayName: nexus
+  image: toolscloud/sonatype-nexus:v8.2
+  nodeGroup: nexus
+  cloudlets: 20
+  links:
+  - ldap:LDAP
+  volumes:
+  - /nexus-data
+  - /nexus-backup
+  - /sys/fs/cgroup
+  - /run
+
+- displayName: jenkins
+  image: toolscloud/jenkins:v8.3
+  nodeGroup: jenkins
+  cloudlets: 16
+  links:
+  - ldap:LDAP
+  - postgresql:POSTGRESQL
+  volumes:
+  - /var/jenkins_home
+  - /root/.m2
+
+- displayName: sonar
+  image: toolscloud/sonar-server:v8.3
+  cloudlets: 20
+  nodeGroup: sonar
+  env: 
+    DBMS: postgresql
+  links:
+  - postgresql:POSTGRESQL
+  - ldap:LDAP
+  volumes:
+  - /opt/sonar/extensions
+  - /opt/sonar/data
+
+- displayName: pla
+  image: toolscloud/phpldapadmin:v8.0
+  cloudlets: 16
+  nodeGroup: pla
+  links:
+  - ldap:LDAP
+
+- displayName: testlink
+  image: toolscloud/testlink:v8.0
+  cloudlets: 16
+  nodeGroup: testlink
+  links:
+  - postgresql:POSTGRESQL
+  - ldap:LDAP
+  volumes:
+  - /var/testlink/upload_area
+  - /var/testlink/logs
+
+- displayName: manager
+  image: toolscloud/manager:v8.1
+  extip: true
+  cloudlets: 8
+  nodeGroup: bl
+  links:
+  - postgresql:POSTGRESQL
+  - ldap:LDAP
+  - jenkins:JENKINS
+  - redmine:REDMINE
+  - nexus:NEXUS
+  - sonar:SONAR
+  - gitblit:GIT
+  - pla:PLA
+  - testlink:TESTLINK
+  volumes:
+  - /var/log/apache2
+  - /etc/ssl/certs
+  - /etc/ssl/private
+
+onAfterRestartContainer:
+- enableRootDNUser
+- forceSonarLDAPPlugin
+
+onInstall:
+  - setToolsCloudPassword
+  - enableRootDNUser
+  - setStartupOrder:
+      displayName: postgresql
+  - setStartupOrder:
+      displayName: ldap
+  - setStartupOrder:
+      displayName: gitblit
+  - setStartupOrder:
+      displayName: redmine
+  - setStartupOrder:
+      displayName: sonatype-nexus
+  - setStartupOrder:
+      displayName: jenkins
+  - setStartupOrder:
+      displayName: sonar-server
+  - forceSonarLDAPPlugin
+  - setStartupOrder:
+      displayName: phpldapadmin
+  - setStartupOrder:
+      displayName: testlink
+  - setStartupOrder:
+      displayName: manager
+
+actions:
+  setStartupOrder:
+    script: https://download.jelastic.com/public.php?service=files&t=68f29c5453b81cffa1dd3dfe95bd8ceb&download
+
+  enableRootDNUser:
+    forEach(nodes.ldap):
+      cmd [ldap]: |-
+        sed -i 's|# rootpw          secret|rootpw {SSHA}nAtpgZ4CXId5Gbn4LxpRD4QvD7SZXud1|g' /usr/local/etc/openldap/slapd.conf
+        (/start.sh ldap:restart 1>>/opt/openldap/log.log 2>>/opt/openldap/log.log &)
+      cmd [cp]: |-
+        slapd
+
+  setToolsCloudPassword:
+    forEach(nodes.ldap):
+      cmd [ldap]: |-
+        ldappasswd -H ldap://localhost -x -D 'cn=toolscloud,ou=users,dc=toolscloud,dc=com' -w toolscloud -a toolscloud -s ${globals.password} >> ${globals.log}
+
+  forceSonarLDAPPlugin:
+    forEach(nodes.sonar):
+      cmd [sonar]: |-
+        if ! [ -d /opt/sonar/extensions/plugins/ ]; then mkdir -p /opt/sonar/extensions/plugins; fi
+        cp /opt/sonar-ldap-plugin-*.jar /opt/sonar/extensions/plugins/ >> ${globals.log}
+
+success:
+  text: /text/success.md
+  email: /text/success.md
+
+responses:
+  4109:
+    type: error
+    message: 'Deployment failed: please check _${globals.log}_ inside the node for more details.'

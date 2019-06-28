@@ -7,3 +7,7 @@ One button click is coming soon...
 ## Single-node - Native Docker Containers
 
 * [Docker Engine](./docker-engine) - a standalone Docker node with pre-configured automatic vertical scaling, full compatibility to native Docker ecosystem, and with ToolsCloud stack ready to go.
+
+## Multi-node
+
+A [multi-node](./multi-node) JElastic environment with ToolsCloud stack ready to go.
