@@ -193,8 +193,8 @@ actions:
         cp /opt/sonar-ldap-plugin-*.jar /opt/sonar/extensions/plugins/ >> ${globals.log}
 
 success:
-  text: /text/success.md
-  email: /text/success.md
+  text: /text/success-multi-node.md
+  email: /text/success-multi-node.md
 
 responses:
   4109:
