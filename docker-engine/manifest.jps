@@ -9,7 +9,7 @@ name: ToolsCloud
 logo: ../images/toolscloud-logo-70x70.png
 description:
   text: /text/description.md
-  short: Continuously ship high-quality software! The Tools Developers Love. Now in the Cloud.
+  short: /text/description-short.md
 homepage: http://www.toolscloud.com
 
 settings:
