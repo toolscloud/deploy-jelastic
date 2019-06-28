@@ -29,3 +29,4 @@ To create the environment, import the `manifest.jps` file using the _raw_ URL ([
 
 # References
 * [jelastic-jps/docker-native](https://github.com/jelastic-jps/docker-native)
+* [Environment Import](https://docs.jelastic.com/environment-import) (_from where I get those images_)

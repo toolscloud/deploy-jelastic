@@ -10,4 +10,4 @@ One button click is coming soon...
 
 ## Multi-node
 
-A [multi-node](./multi-node) JElastic environment with ToolsCloud stack ready to go.
+* [JElastic Environment](./multi-node) - a multi-node configuration with ToolsCloud stack ready to go.
