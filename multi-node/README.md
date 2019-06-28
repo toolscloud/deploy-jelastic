@@ -4,7 +4,7 @@ A multi-node JElastic environment with ToolsCloud stack ready to go.
 
 ## Getting Started
 
-To create the environment, import the `manifest.jps` file using the _raw_ URL ([yeap!](https://raw.githubusercontent.com/toolscloud/deploy-jelastic/master/jelastic-containers/manifest.jps)), instead of the GitHub page ([nope!](https://github.com/toolscloud/deploy-jelastic/blob/master/jelastic-containers/manifest.jps)).
+To create the environment, import the `manifest.jps` file using the _raw_ URL ([yeap!](https://raw.githubusercontent.com/toolscloud/deploy-jelastic/master/multi-node/manifest.jps)), instead of the GitHub page ([nope!](https://github.com/toolscloud/deploy-jelastic/blob/master/multi-node/manifest.jps)).
 
 * Click on _IMPORT_:
 
