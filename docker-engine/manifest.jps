@@ -3,7 +3,7 @@ type: install
 version: 1.2
 
 id: toolscloud
-baseUrl: https://raw.githubusercontent.com/toolscloud/deploy-jelastic/master/addons
+baseUrl: https://raw.githubusercontent.com/toolscloud/deploy-jelastic/dev/addons
 
 name: ToolsCloud
 logo: ../images/toolscloud-logo-70x70.png
