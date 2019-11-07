@@ -6,6 +6,8 @@ name: Docker Deploy
 globals:
   log: /var/log/run.log
   project: deploy-toolscloud
+  lets-encrypt-domain: ${env.domain}
+  lets-encrypt-email: ${user.email}
 
 onInstall:
   - if ("${settings.preHook}" && "${settings.preHook}" != "$"+"{settings.preHook}"): execPreHook
@@ -51,6 +53,10 @@ actions:
 
       # force Sonar LDAP plugin
       - docker-compose exec -T sonar sh -c "mkdir -p /opt/sonar/extensions/plugins && cp /opt/sonar-ldap-plugin-*.jar /opt/sonar/extensions/plugins/" >> ${globals.log}
+      
+      # configure Lets Encrypt
+      - docker-compose exec -T manager sed -i 's|# ServerName|ServerName ${globals.lets-encrypt-domain}|' /etc/apache2/sites-enabled/default-ssl.conf >> ${globals.log}
+      - docker-compose exec -T manager certbot --apache -d ${globals.lets-encrypt-domain} -m ${globals.lets-encrypt-email} --agree-tos -n --no-redirect >> ${globals.log}
 
 responses:
   4109:

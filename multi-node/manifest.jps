@@ -25,6 +25,8 @@ globals:
   user: toolscloud
   password: ${fn.password}
   log: /var/log/run.log
+  lets-encrypt-domain: ${env.domain}
+  lets-encrypt-email: ${user.email}
 
 nodes:
 - displayName: postgresql
@@ -121,7 +123,7 @@ nodes:
   - /var/testlink/logs
 
 - displayName: manager
-  image: toolscloud/manager:v8.1
+  image: toolscloud/manager:v8.3
   extip: true
   cloudlets: 8
   nodeGroup: bl
@@ -168,6 +170,7 @@ onInstall:
       displayName: testlink
   - setStartupOrder:
       displayName: manager
+  - configureLetsEncrypt
 
 actions:
   setStartupOrder:
@@ -191,6 +194,12 @@ actions:
       cmd [sonar]: |-
         if ! [ -d /opt/sonar/extensions/plugins/ ]; then mkdir -p /opt/sonar/extensions/plugins; fi
         cp /opt/sonar-ldap-plugin-*.jar /opt/sonar/extensions/plugins/ >> ${globals.log}
+
+  configureLetsEncrypt:
+    forEach(nodes.bl):
+      cmd [bl]: |-
+        sed -i 's|# ServerName|ServerName ${globals.lets-encrypt-domain}|' /etc/apache2/sites-enabled/default-ssl.conf
+        sudo certbot --apache -d ${globals.lets-encrypt-domain} -m ${globals.lets-encrypt-email} --agree-tos -n --no-redirect
 
 success:
   text: /text/success-multi-node.md
