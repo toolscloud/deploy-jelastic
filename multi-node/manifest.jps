@@ -30,7 +30,7 @@ globals:
 
 nodes:
 - displayName: postgresql
-  image: toolscloud/postgresql:v8.0
+  image: toolscloud/postgresql:v9.0
   cloudlets: 16
   nodeGroup: postgresql
   volumes:
@@ -38,7 +38,7 @@ nodes:
   - /run/postgresql
 
 - displayName: ldap
-  image: toolscloud/ldap:v8.1
+  image: toolscloud/ldap:v9.0
   nodeGroup: ldap
   cloudlets: 8
   volumes:
@@ -46,7 +46,7 @@ nodes:
   - /usr/local/var/openldap-data
 
 - displayName: gitblit
-  image: toolscloud/gitblit:v8.1
+  image: toolscloud/gitblit:v9.0
   nodeGroup: gitblit
   cloudlets: 16
   volumes:
@@ -55,7 +55,7 @@ nodes:
   - ldap:LDAP
 
 - displayName: redmine
-  image: toolscloud/redmine:v8.1
+  image: toolscloud/redmine:v9.0
   cloudlets: 20
   nodeGroup: redmine
   links:
@@ -69,7 +69,7 @@ nodes:
   - /home/redmine/redmine/files
 
 - displayName: nexus
-  image: toolscloud/sonatype-nexus:v8.2
+  image: toolscloud/sonatype-nexus:v9.0
   nodeGroup: nexus
   cloudlets: 20
   links:
@@ -81,7 +81,7 @@ nodes:
   - /run
 
 - displayName: jenkins
-  image: toolscloud/jenkins:v8.3
+  image: toolscloud/jenkins:v9.0
   nodeGroup: jenkins
   cloudlets: 16
   links:
@@ -92,7 +92,7 @@ nodes:
   - /root/.m2
 
 - displayName: sonar
-  image: toolscloud/sonar-server:v8.3
+  image: toolscloud/sonar-server:v9.0
   cloudlets: 20
   nodeGroup: sonar
   env: 
@@ -105,14 +105,14 @@ nodes:
   - /opt/sonar/data
 
 - displayName: pla
-  image: toolscloud/phpldapadmin:v8.0
+  image: toolscloud/phpldapadmin:v9.0
   cloudlets: 16
   nodeGroup: pla
   links:
   - ldap:LDAP
 
 - displayName: testlink
-  image: toolscloud/testlink:v8.0
+  image: toolscloud/testlink:v9.0
   cloudlets: 16
   nodeGroup: testlink
   links:
@@ -123,7 +123,7 @@ nodes:
   - /var/testlink/logs
 
 - displayName: manager
-  image: toolscloud/manager:v8.3
+  image: toolscloud/manager:v9.0
   extip: true
   cloudlets: 8
   nodeGroup: bl
@@ -144,7 +144,6 @@ nodes:
 
 onAfterRestartContainer:
 - enableRootDNUser
-- forceSonarLDAPPlugin
 
 onInstall:
   - setToolsCloudPassword
@@ -163,7 +162,6 @@ onInstall:
       displayName: jenkins
   - setStartupOrder:
       displayName: sonar-server
-  - forceSonarLDAPPlugin
   - setStartupOrder:
       displayName: phpldapadmin
   - setStartupOrder:
@@ -188,12 +186,6 @@ actions:
     forEach(nodes.ldap):
       cmd [ldap]: |-
         ldappasswd -H ldap://localhost -x -D 'cn=toolscloud,ou=users,dc=toolscloud,dc=com' -w toolscloud -a toolscloud -s ${globals.password} >> ${globals.log}
-
-  forceSonarLDAPPlugin:
-    forEach(nodes.sonar):
-      cmd [sonar]: |-
-        if ! [ -d /opt/sonar/extensions/plugins/ ]; then mkdir -p /opt/sonar/extensions/plugins; fi
-        cp /opt/sonar-ldap-plugin-*.jar /opt/sonar/extensions/plugins/ >> ${globals.log}
 
   configureLetsEncrypt:
     forEach(nodes.bl):
